@@ -1,4 +1,5 @@
 import getpass
+import os
 
 # Функция для шифрования методом перестановки
 def permutation_encrypt(text, key):
@@ -26,26 +27,41 @@ def substitution_encrypt(text, key):
 
 # Ввод ключа без отображения
 def get_hidden_key(prompt="Введите ключ: "):
+    print(prompt)  # Для отладки: добавляем вывод сообщения о вводе
     return getpass.getpass(prompt)
 
 # Шифрование текста из файла
 def encrypt_file(input_file, output_file):
     try:
+        # Проверка наличия файла
+        if not os.path.exists(input_file):
+            print(f"Ошибка: файл {input_file} не существует.")
+            return
+        
         print(f"Чтение из файла: {input_file}...")  # Сообщение для отладки
         with open(input_file, 'r', encoding='utf-8') as file:
             text = file.read()
-
-        permutation_key = get_hidden_key("Введите ключ для перестановки: ")
-        substitution_key = get_hidden_key("Введите ключ для замены (33 символа): ")
         
+        print("Текст успешно прочитан.")  # Сообщение для отладки
+        
+        # Ввод ключа для перестановки
+        permutation_key = get_hidden_key("Введите ключ для перестановки: ")
+        print("Ключ для перестановки введён.")  # Сообщение для отладки
+
+        # Ввод ключа для замены
+        substitution_key = get_hidden_key("Введите ключ для замены (33 символа): ")
+        print("Ключ для замены введён.")  # Сообщение для отладки
+        
+        # Шифрование текста
         encrypted_text = permutation_encrypt(text, permutation_key)
         encrypted_text = substitution_encrypt(encrypted_text, substitution_key)
         
+        # Запись зашифрованного текста в файл
         print(f"Запись шифрованного текста в файл: {output_file}...")  # Сообщение для отладки
         with open(output_file, 'w', encoding='utf-8') as file:
             file.write(encrypted_text)
         
-        print("Текст успешно зашифрован и сохранен в файл.")
+        print("Текст успешно зашифрован и сохранён в файл.")
     
     except Exception as e:
         print(f"Ошибка: {e}")
