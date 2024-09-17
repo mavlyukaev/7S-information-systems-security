@@ -5,14 +5,20 @@ import os
 def permutation_encrypt(text, key):
     print("Шифрование перестановкой...")  # Сообщение для отладки
     columns = len(key)
-    rows = (len(text) + columns - 1) // columns
+    rows = (len(text) + columns - 1) // columns  # Рассчитываем число строк
+    print(f"Разбиваем текст на {rows} строк(и) и {columns} столбца(ов).")  # Отладка
     grid = [''] * columns
     
     for i, char in enumerate(text):
         grid[i % columns] += char
     
+    print(f"Промежуточное состояние сетки: {grid}")  # Отладка
+
     sorted_key = sorted(list(enumerate(key)), key=lambda x: x[1])
+    print(f"Отсортированный ключ: {sorted_key}")  # Отладка
+
     encrypted = ''.join(grid[i[0]] for i in sorted_key)
+    print(f"Результат перестановочного шифрования: {encrypted}")  # Отладка
     
     return encrypted
 
@@ -23,6 +29,7 @@ def substitution_encrypt(text, key):
     key_map = {alphabet[i]: key[i] for i in range(len(alphabet))}
     encrypted = ''.join(key_map.get(c, c) for c in text.lower())
     
+    print(f"Результат шифрования заменой: {encrypted}")  # Отладка
     return encrypted
 
 # Ввод ключа без отображения
@@ -46,10 +53,18 @@ def encrypt_file(input_file, output_file):
         
         # Ввод ключа для перестановки
         permutation_key = get_hidden_key("Введите ключ для перестановки: ")
+        if not permutation_key:
+            print("Ошибка: ключ для перестановки не может быть пустым!")
+            return
+        
         print("Ключ для перестановки введён.")  # Сообщение для отладки
 
         # Ввод ключа для замены
         substitution_key = get_hidden_key("Введите ключ для замены (33 символа): ")
+        if len(substitution_key) != 33:
+            print("Ошибка: ключ для замены должен быть длиной 33 символа!")
+            return
+        
         print("Ключ для замены введён.")  # Сообщение для отладки
         
         # Шифрование текста
