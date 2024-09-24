@@ -1,20 +1,41 @@
 import random
 import string
+import math
+
+def calculate_password_length(P, V, T, A):
+    # Вычисление нижней границы S*
+    S_star = -math.log10(P) / (V * T)
+    
+    # Найти минимальную длину пароля L
+    L = math.ceil(S_star / math.log10(A))  # Округляем до целого вверх
+    return L
 
 def generate_password(length):
-    # Определяем алфавит
+    # Определяем алфавит (буквы, цифры, символы)
     alphabet = string.ascii_uppercase + string.ascii_lowercase + string.digits + "!\"#$%&'"
+    
+    # Генерация случайного пароля
     password = ''.join(random.choice(alphabet) for _ in range(length))
     return password
 
 def main():
-    length = 27  # Минимальная длина пароля
-    num_passwords = 10  # Количество генерируемых паролей
-    passwords = [generate_password(length) for _ in range(num_passwords)]
-
-    print("Сгенерированные пароли:")
-    for pwd in passwords:
-        print(pwd)
+    # Ввод параметров P, V и T
+    P = float(input("Введите значение P (вероятность успешного взлома): "))
+    V = int(input("Введите значение V (количество паролей в день): "))
+    T = int(input("Введите значение T (количество дней): "))
+    
+    # Определение алфавита (A = 72)
+    A = len(string.ascii_uppercase + string.ascii_lowercase + string.digits + "!\"#$%&'")
+    
+    # Вычисление минимальной длины пароля
+    L = calculate_password_length(P, V, T, A)
+    
+    # Генерация пароля
+    password = generate_password(L)
+    
+    # Вывод результатов
+    print(f"Минимальная длина пароля для безопасности: {L}")
+    print(f"Сгенерированный пароль: {password}")
 
 if __name__ == "__main__":
     main()
