@@ -1,0 +1,20 @@
+import random
+import string
+
+def generate_password(length):
+    # Определяем алфавит
+    alphabet = string.ascii_uppercase + string.ascii_lowercase + string.digits + "!\"#$%&'"
+    password = ''.join(random.choice(alphabet) for _ in range(length))
+    return password
+
+def main():
+    length = 27  # Минимальная длина пароля
+    num_passwords = 10  # Количество генерируемых паролей
+    passwords = [generate_password(length) for _ in range(num_passwords)]
+
+    print("Сгенерированные пароли:")
+    for pwd in passwords:
+        print(pwd)
+
+if __name__ == "__main__":
+    main()
