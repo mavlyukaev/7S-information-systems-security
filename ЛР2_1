@@ -1,101 +1,87 @@
-import getpass
+# Функция для шифрования текста по методу двойной перестановки
+def double_transposition_encrypt(text, key):
+    print("Начало шифрования...")
 
-# Функция для шифрования методом перестановки
-def permutation_encrypt(text, key):
+    # Удаление пробелов и проверка длины ключа
+    text = text.replace(' ', '')  # Удаляем пробелы из текста для корректной работы
+    if len(key) > len(text):
+        print("Ошибка: длина ключа больше длины текста!")
+        return ""
+
+    # Рассчитываем количество строк и столбцов
     columns = len(key)
-    rows = (len(text) + columns - 1) // columns
-    grid = [''] * columns
-    
-    for i, char in enumerate(text):
-        grid[i % columns] += char
-    
-    sorted_key = sorted(list(enumerate(key)), key=lambda x: x[1])
-    encrypted = ''.join(grid[i[0]] for i in sorted_key)
-    
-    return encrypted
+    rows = len(text) // columns
+    if len(text) % columns != 0:
+        rows += 1
 
-# Функция для замены символов
-def substitution_encrypt(text, key):
-    alphabet = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя'
-    key_map = {alphabet[i]: key[i] for i in range(len(alphabet))}
-    encrypted = ''.join(key_map.get(c, c) for c in text.lower())
-    
-    return encrypted
+    print(f"Текст будет разбит на {rows} строк и {columns} столбцов.")
 
-# Функция для расшифровки методом перестановки
-def permutation_decrypt(text, key):
-    columns = len(key)
-    rows = (len(text) + columns - 1) // columns
-    sorted_key = sorted(list(enumerate(key)), key=lambda x: x[1])
-    
-    grid = [''] * columns
-    index = 0
-    for i in sorted_key:
-        grid[i[0]] = text[index:index + rows]
-        index += rows
+    # Формируем сетку для текста (добавляем пустые символы для завершения строк)
+    grid = [''] * rows
+    for i in range(len(text)):
+        row = i // columns
+        col = i % columns
+        grid[row] += text[i]
 
-    decrypted = ''.join(''.join(row) for row in zip(*grid))
-    
-    return decrypted
+    print("Сетка после первой перестановки строк:", grid)
 
-# Функция для расшифровки замены символов
-def substitution_decrypt(text, key):
-    alphabet = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя'
-    key_map = {key[i]: alphabet[i] for i in range(len(alphabet))}
-    decrypted = ''.join(key_map.get(c, c) for c in text.lower())
-    
-    return decrypted
+    # Применение ключа (перестановка столбцов)
+    transposed_grid = [''] * rows
+    for row in range(rows):
+        new_row = [''] * columns
+        for i, col in enumerate(sorted(list(key))):
+            key_index = key.index(col)
+            if key_index < len(grid[row]):
+                new_row[i] = grid[row][key_index]
+        transposed_grid[row] = ''.join(new_row)
 
-# Ввод ключа без отображения
-def get_hidden_key(prompt="Введите ключ: "):
-    return getpass.getpass(prompt)
+    print("Сетка после перестановки столбцов:", transposed_grid)
 
-# Шифрование текста из файла
-def encrypt_file(input_file, output_file):
-    with open(input_file, 'r', encoding='utf-8') as file:
-        text = file.read()
+    # Собираем финальный зашифрованный текст
+    encrypted_text = ''.join(transposed_grid)
+    print("Зашифрованный текст (перед возвращением):", encrypted_text)
 
-    permutation_key = get_hidden_key("Введите ключ для перестановки: ")
-    substitution_key = get_hidden_key("Введите ключ для замены (33 символа): ")
-    
-    encrypted_text = permutation_encrypt(text, permutation_key)
-    encrypted_text = substitution_encrypt(encrypted_text, substitution_key)
-    
-    with open(output_file, 'w', encoding='utf-8') as file:
-        file.write(encrypted_text)
-    
-    print("Текст успешно зашифрован и сохранен в файл.")
+    return encrypted_text
 
-# Расшифровка текста из файла
-def decrypt_file(input_file, output_file=None):
-    with open(input_file, 'r', encoding='utf-8') as file:
-        text = file.read()
 
-    permutation_key = get_hidden_key("Введите ключ для перестановки: ")
-    substitution_key = get_hidden_key("Введите ключ для замены (33 символа): ")
-    
-    decrypted_text = substitution_decrypt(text, substitution_key)
-    decrypted_text = permutation_decrypt(decrypted_text, permutation_key)
-    
-    if output_file:
-        with open(output_file, 'w', encoding='utf-8') as file:
-            file.write(decrypted_text)
-        print("Текст успешно расшифрован и сохранен в файл.")
+# Ввод текста и ключа
+def main():
+    choice = input("1: Шифрование текста из файла\n2: Шифрование текста с клавиатуры\nВыберите опцию: ")
+
+    if choice == '1':
+        input_file = input("Введите имя файла для шифрования: ")
+        with open(input_file, 'r', encoding='utf-8') as f:
+            text = f.read()
+    elif choice == '2':
+        text = input("Введите текст для шифрования: ")
     else:
-        print("Расшифрованный текст:")
-        print(decrypted_text)
+        print("Неправильный выбор!")
+        return
 
-# Пример использования
+    print("Текст для шифрования:", text)
+
+    # Ввод ключа с использованием обычного input() вместо getpass.getpass()
+    key = input("Введите ключ шифрования: ")
+
+    if not key:
+        print("Ключ не может быть пустым!")
+        return
+
+    print("Ключ для шифрования:", key)
+
+    # Шифрование
+    encrypted_text = double_transposition_encrypt(text, key)
+
+    if encrypted_text:
+        # Сохранение результата в файл
+        output_file = input("Введите имя файла для сохранения зашифрованного текста: ")
+        with open(output_file, 'w', encoding='utf-8') as f:
+            f.write(encrypted_text)
+
+        print(f"Текст успешно зашифрован и сохранен в файл: {output_file}")
+    else:
+        print("Произошла ошибка при шифровании!")
+
+
 if __name__ == "__main__":
-    mode = input("Выберите режим (1 - шифрование, 2 - расшифровка): ")
-
-    if mode == '1':
-        input_file = input("Введите имя исходного файла для шифрования: ")
-        output_file = input("Введите имя файла для сохранения шифрованного текста: ")
-        encrypt_file(input_file, output_file)
-    elif mode == '2':
-        input_file = input("Введите имя файла с зашифрованным текстом: ")
-        output_file = input("Введите имя файла для сохранения расшифрованного текста (или нажмите Enter для вывода на экран): ")
-        decrypt_file(input_file, output_file if output_file else None)
-    else:
-        print("Неверный выбор режима.")
+    main()
