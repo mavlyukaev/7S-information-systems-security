@@ -3,11 +3,9 @@ import string
 import math
 
 def calculate_password_length(P, V, T, A):
-    # Вычисление нижней границы S*
-    S_star = -math.log10(P) / (V * T)
-    
-    # Найти минимальную длину пароля L
-    L = math.ceil(S_star / math.log10(A))  # Округляем до целого вверх
+    # Вычисление минимальной длины пароля L с использованием логарифма по основанию 2
+    S_star = math.log2(1 / P)  # Вычисляем -log2(P)
+    L = math.ceil(S_star / (math.log2(A) * V * T))  # Округляем до целого вверх
     return L
 
 def generate_password(length):
@@ -24,7 +22,7 @@ def main():
     V = int(input("Введите значение V (количество паролей в день): "))
     T = int(input("Введите значение T (количество дней): "))
     
-    # Определение алфавита (A = 72)
+    # Определение алфавита (A = 72 символа: заглавные, строчные, цифры, символы)
     A = len(string.ascii_uppercase + string.ascii_lowercase + string.digits + "!\"#$%&'")
     
     # Вычисление минимальной длины пароля
