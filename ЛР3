@@ -3,9 +3,9 @@ import string
 import math
 
 def calculate_password_length(P, V, T, A):
-    # Вычисление минимальной длины пароля L с использованием логарифма по основанию 2
-    S_star = math.log2(1 / P)  # Вычисляем -log2(P)
-    L = math.ceil(S_star / (math.log2(A) * V * T))  # Округляем до целого вверх
+    # Вычисление минимальной длины пароля L
+    required_combinations = (1 / P) * V * T
+    L = math.ceil(math.log2(required_combinations) / math.log2(A))  # Округляем до целого вверх
     return L
 
 def generate_password(length):
