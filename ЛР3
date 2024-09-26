@@ -1,39 +1,55 @@
 import random
-import string
 import math
 
-def calculate_password_length(P, V, T, A):
-    # Вычисление минимальной длины пароля L
-    required_combinations = (1 / P) * V * T
-    L = math.ceil(math.log2(required_combinations) / math.log2(A))  # Округляем до целого вверх
-    return L
+# Функция для вычисления нижней границы S*
+def calculate_S(P, V, T):
+    return (V * T) / P
 
-def generate_password(length):
-    # Определяем алфавит (буквы, цифры, символы)
-    alphabet = string.ascii_uppercase + string.ascii_lowercase + string.digits + "!\"#$%&'"
-    
-    # Генерация случайного пароля
-    password = ''.join(random.choice(alphabet) for _ in range(length))
-    return password
+# Функция для расчета минимальной длины пароля L
+def calculate_L(S, A):
+    return math.ceil(math.log(S) / math.log(A))
 
+# Функция для генерации пароля
+def generate_password(length, alphabet):
+    return ''.join(random.choice(alphabet) for _ in range(length))
+
+# Основная программа
 def main():
-    # Ввод параметров P, V и T
-    P = float(input("Введите значение P (вероятность успешного взлома): "))
-    V = int(input("Введите значение V (количество паролей в день): "))
-    T = int(input("Введите значение T (количество дней): "))
-    
-    # Определение алфавита (A = 72 символа: заглавные, строчные, цифры, символы)
-    A = len(string.ascii_uppercase + string.ascii_lowercase + string.digits + "!\"#$%&'")
-    
-    # Вычисление минимальной длины пароля
-    L = calculate_password_length(P, V, T, A)
-    
+    # Ввод значений P, V, T
+    P = float(input("Введите P (вероятность успешного взлома): "))
+    V = float(input("Введите V (количество паролей в день): "))
+    T = float(input("Введите T (количество дней): "))
+
+    # Вычисление нижней границы S*
+    S_star = calculate_S(P, V, T)
+    print(f"Нижняя граница S* = {S_star}")
+
+    # Определяем алфавит: английские буквы, цифры, специальные символы
+    alphabet = (
+            [chr(i) for i in range(65, 91)] +  # Заглавные буквы
+            [chr(i) for i in range(97, 123)] +  # Строчные буквы
+            [chr(i) for i in range(48, 58)] +  # Цифры
+            ['!', '"', '#', '$', '%', '&', "'"]  # Специальные символы
+    )
+
+    # Мощность алфавита
+    A = len(alphabet)
+    print(f"Мощность алфавита A = {A}")
+
+    # Вычисление минимальной длины пароля L
+    L = calculate_L(S_star, A)
+
+    # Принудительное увеличение длины пароля, если она меньше минимальной
+    MIN_PASSWORD_LENGTH = 10
+    if L < MIN_PASSWORD_LENGTH:
+        L = MIN_PASSWORD_LENGTH
+
+    print(f"Минимальная длина пароля L = {L}")
+
     # Генерация пароля
-    password = generate_password(L)
-    
-    # Вывод результатов
-    print(f"Минимальная длина пароля для безопасности: {L}")
+    password = generate_password(L, alphabet)
     print(f"Сгенерированный пароль: {password}")
 
+# Запуск программы
 if __name__ == "__main__":
     main()
